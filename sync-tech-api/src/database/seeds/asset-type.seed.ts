@@ -1,4 +1,3 @@
-// src/database/seed-asset-type.ts
 import 'reflect-metadata';
 import { MikroORM } from '@mikro-orm/core';
 import mikroOrmConfig from '../mikro-orm.config';
