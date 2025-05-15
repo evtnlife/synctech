@@ -28,8 +28,12 @@ export class ProjectController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new project' })
-  @ApiResponse({ status: 201, description: 'Project created.', type: Project })
-  async create(@Body() dto: CreateProjectDto): Promise<Project> {
+  @ApiResponse({
+    status: 201,
+    description: 'Project created.',
+    type: ResponseProjectDto,
+  })
+  async create(@Body() dto: CreateProjectDto): Promise<ResponseProjectDto> {
     this.logger.log('POST /projects');
     return this.projectService.create(dto);
   }

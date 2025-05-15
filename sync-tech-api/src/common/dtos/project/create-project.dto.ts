@@ -1,30 +1,33 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsString,
   IsNotEmpty,
   IsOptional,
+  IsString,
   ValidateNested,
   IsArray,
+  IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CustomFieldDto } from '../custom-field.dto';
+import { CreateAssetDto } from '../asset/create-asset.dto';
 
 export class CreateProjectDto {
-  @ApiProperty({ description: 'Name of the project' })
-  @IsString()
+  @IsNumber()
+  @IsOptional()
+  id?: number;
+
   @IsNotEmpty()
+  @IsString()
   name: string;
 
-  @ApiProperty({ description: 'Description of the project' })
   @IsString()
-  @IsNotEmpty()
   description: string;
 
-  @ApiProperty({
-    description: 'Custom key/value fields',
-    type: [CustomFieldDto],
-    required: false,
-  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateAssetDto)
+  assets?: CreateAssetDto[];
+
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
