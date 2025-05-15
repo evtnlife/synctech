@@ -3,12 +3,20 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.setGlobalPrefix('/api');
 
-  // Swagger configuration
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: false,
+      transform: true,
+    }),
+  );
   const config = new DocumentBuilder()
     .setTitle('SyncTech-Test API')
     .setDescription('API documentation for SyncTech-Test')

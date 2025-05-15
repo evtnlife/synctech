@@ -1,7 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
 
 export class CustomFieldDto {
+  @IsNumber()
+  @IsOptional()
+  id?: number;
+
   @ApiProperty({ description: 'Custom field key' })
   @IsString()
   @IsNotEmpty()

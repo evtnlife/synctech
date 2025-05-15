@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsUrl } from 'class-validator';
 import { AssetTypeDto } from './asset-type.dto';
 
-export class AssetDto {
+export class ResponseAssetDto {
   @ApiProperty({ description: 'Unique ID of the asset', example: 1 })
   id: number;
 
