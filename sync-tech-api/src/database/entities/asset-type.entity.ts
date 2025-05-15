@@ -6,25 +6,18 @@ import {
   Collection,
 } from '@mikro-orm/core';
 import { Asset } from './asset.entity';
-import { CustomField } from './custom-field.entity';
 
-@Entity()
-export class Project {
+@Entity({ tableName: 'asset_types' })
+export class AssetType {
   @PrimaryKey()
   id!: number;
 
-  @Property()
+  @Property({ unique: true })
   name!: string;
-
-  @Property()
-  description!: string;
 
   @Property({ onCreate: () => new Date() })
   createdAt!: Date;
 
-  @OneToMany(() => Asset, (a) => a.project)
+  @OneToMany(() => Asset, (asset) => asset.type)
   assets = new Collection<Asset>(this);
-
-  @OneToMany(() => CustomField, (f) => f.project)
-  customFields = new Collection<CustomField>(this);
 }

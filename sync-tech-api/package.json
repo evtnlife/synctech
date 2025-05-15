@@ -17,7 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "mikro:create": "mikro-orm migration:create --config src/database/mikro-orm.config.ts",
+    "mikro:up": "mikro-orm migration:up   --config src/database/mikro-orm.config.ts",
+    "seed:asset-types": "ts-node -r tsconfig-paths/register src/database/seeds/asset-type.seed.ts"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.4.15",
@@ -34,6 +37,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@mikro-orm/cli": "^6.4.15",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",

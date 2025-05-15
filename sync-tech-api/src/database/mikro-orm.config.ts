@@ -12,6 +12,11 @@ const mikroOrmConfig: Options<PostgreSqlDriver> = {
   entitiesTs: ['./src/database/entities/*.entity.ts'],
   debug: true,
   forceEntityConstructor: true,
+  migrations: {
+    path: './src/database/migrations',
+    pathTs: './src/database/migrations',
+    glob: '!(*.d).{js,ts}',
+  },
 };
 
 export default mikroOrmConfig;

@@ -12,6 +12,9 @@ export class CustomField {
   @Property()
   value!: string;
 
+  @Property({ onCreate: () => new Date() })
+  createdAt!: Date;
+
   @ManyToOne(() => Project)
   project!: Project;
 }
