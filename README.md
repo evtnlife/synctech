@@ -1,5 +1,5 @@
 
-````markdown
+
 # SyncTech Technical Assessment
 
 This is a full-stack technical assessment project built with **React**, **NestJS**, and **PostgreSQL**, designed for managing construction projects and related assets.
@@ -29,7 +29,7 @@ This is a full-stack technical assessment project built with **React**, **NestJS
 
 1. Clone the repository:
 
-   ```bash
+  ````bash
    git clone https://github.com/evtnlife/synctech.git
    cd synctech
 ````
