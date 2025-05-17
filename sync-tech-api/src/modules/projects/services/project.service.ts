@@ -1,65 +1,87 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
-import { EntityManager } from '@mikro-orm/postgresql';
+import {
+  Injectable,
+  NotFoundException,
+  Logger,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { EntityManager, t } from '@mikro-orm/postgresql';
 import { CreateProjectDto } from 'src/common/dtos/project/create-project.dto';
 import { UpdateProjectDto } from 'src/common/dtos/project/update-project.dto';
-import { CustomField } from 'src/database/entities/custom-field.entity';
 import { Project } from 'src/database/entities/project.entity';
 import { ResponseProjectDto } from 'src/common/dtos/project/response-project.dto';
-import { AssetType } from 'src/database/entities/asset-type.entity';
-import { Asset } from 'src/database/entities/asset.entity';
+import { AssetService } from 'src/modules/assets/services/asset.service';
+import { CustomFieldService } from './custom-fields.service';
 
 @Injectable()
 export class ProjectService {
   private readonly logger = new Logger(ProjectService.name);
 
-  constructor(private readonly em: EntityManager) {}
+  constructor(
+    private readonly em: EntityManager,
+    private assetService: AssetService,
+    private customFieldsService: CustomFieldService,
+  ) {}
 
   async create(dto: CreateProjectDto): Promise<ResponseProjectDto> {
-    return await this.em.transactional(async (em) => {
+    const fork = this.em.fork();
+    try {
+      await fork.begin();
       this.logger.log(`Creating new project`);
+
+      if (!dto.name?.trim()) {
+        throw new BadRequestException('Project name is required.');
+      }
 
       const project = new Project();
       project.name = dto.name;
       project.description = dto.description;
 
-      em.persist(project);
+      fork.persist(project);
 
-      if (dto.assets) {
-        for (const assetDto of dto.assets) {
-          const asset = new Asset();
-          asset.name = assetDto.name;
-          asset.url = assetDto.url;
-          asset.type = await em.getReference(AssetType, assetDto.typeId);
-          asset.project = project;
-
-          em.persist(asset);
-          project.assets.add(asset);
-        }
+      if (dto.assets && dto?.assets?.length > 0) {
+        await this.assetService.upsertAssets(
+          project.id,
+          dto.assets,
+          false,
+          fork,
+        );
       }
 
-      if (dto.customFields) {
-        for (const fieldDto of dto.customFields) {
-          const customField = new CustomField();
-          customField.key = fieldDto.key;
-          customField.value = fieldDto.value;
-          customField.project = project;
-
-          em.persist(customField);
-          project.customFields.add(customField);
-        }
+      if (dto.customFields && dto.customFields.length > 0) {
+        await this.customFieldsService.upsertFields(
+          project.id,
+          dto.customFields,
+          false,
+          fork,
+        );
       }
 
-      await em.flush();
+      await fork.flush();
+      await fork.commit();
       this.logger.log(`Project created with id=${project.id}`);
       return new ResponseProjectDto(project);
-    });
+    } catch (error) {
+      this.logger.error(error.message);
+      fork.rollback();
+      throw new InternalServerErrorException('Unexpected error', {
+        cause: error,
+      });
+    }
   }
 
   async update(id: number, dto: UpdateProjectDto): Promise<ResponseProjectDto> {
-    return await this.em.transactional(async (em) => {
+    const fork = this.em.fork();
+    try {
+      const fork = this.em.fork();
+      await fork.begin();
       this.logger.log(`Updating project id=${id}`);
 
-      const project = await em.findOne(
+      if (!dto.name?.trim()) {
+        throw new BadRequestException('Project name is required.');
+      }
+
+      const project = await fork.findOne(
         Project,
         { id },
         { populate: ['assets.type', 'customFields'] },
@@ -73,97 +95,94 @@ export class ProjectService {
       project.name = dto.name ?? project.name;
       project.description = dto.description ?? project.description;
 
-      if (dto.assets) {
-        const updatedAssets: Asset[] = [];
-
-        for (const assetDto of dto.assets) {
-          let asset: Asset | undefined;
-
-          if (assetDto.id) {
-            asset = project.assets.getItems().find((a) => a.id === assetDto.id);
-            if (asset) {
-              asset.name = assetDto.name;
-              asset.url = assetDto.url;
-              asset.type = await em.getReference(AssetType, assetDto.typeId);
-            } else {
-              asset = new Asset();
-              asset.name = assetDto.name;
-              asset.url = assetDto.url;
-              asset.type = await em.getReference(AssetType, assetDto.typeId);
-              asset.project = project;
-              em.persist(asset);
-            }
-            updatedAssets.push(asset);
-          }
-        }
-
-        project.assets.set(updatedAssets);
+      if (dto.assets && dto?.assets?.length > 0) {
+        await this.assetService.upsertAssets(
+          project.id,
+          dto.assets,
+          false,
+          fork,
+        );
       }
 
-      if (dto.customFields) {
-        const updatedFields: CustomField[] = [];
-
-        for (const fieldDto of dto.customFields) {
-          const existing = project.customFields
-            .getItems()
-            .find((f) => f.key === fieldDto.key);
-
-          if (existing) {
-            existing.value = fieldDto.value;
-            updatedFields.push(existing);
-          } else {
-            const newField = new CustomField();
-            newField.key = fieldDto.key;
-            newField.value = fieldDto.value;
-            newField.project = project;
-            em.persist(newField);
-            updatedFields.push(newField);
-          }
-        }
-
-        project.customFields.set(updatedFields);
+      if (dto.customFields && dto.customFields.length > 0) {
+        await this.customFieldsService.upsertFields(
+          project.id,
+          dto.customFields,
+          false,
+          fork,
+        );
       }
 
-      await em.flush();
+      await fork.flush();
+      await fork.commit();
       this.logger.log(`Project id=${id} updated`);
       return new ResponseProjectDto(project);
-    });
+    } catch (error) {
+      this.logger.error(error.message);
+      fork.rollback();
+      throw new InternalServerErrorException('Unexpected error', {
+        cause: error,
+      });
+    }
   }
 
   async remove(id: number): Promise<void> {
-    return await this.em.transactional(async (em) => {
+    const fork = this.em.fork();
+    try {
+      await fork.begin();
       this.logger.log(`Deleting project id=${id}`);
-      const project = await em.findOne(Project, { id });
+      const project = await fork.findOne(Project, { id });
       if (!project) {
         this.logger.warn(`Project id=${id} not found`);
         throw new NotFoundException(`Project #${id} not found`);
       }
-      await em.removeAndFlush(project);
+      await fork.removeAndFlush(project);
       this.logger.log(`Project id=${id} deleted`);
-    });
+      await fork.commit();
+    } catch (error) {
+      this.logger.error(error.message);
+      fork.rollback();
+      throw new InternalServerErrorException('Unexpected error', {
+        cause: error,
+      });
+    }
   }
 
   async findAll(): Promise<ResponseProjectDto[]> {
-    this.logger.log('Retrieving all projects');
-    const projects = await this.em.find(
-      Project,
-      {},
-      { populate: ['assets', 'assets.type', 'customFields'] },
-    );
-    return projects.map((p) => new ResponseProjectDto(p));
+    try {
+      this.logger.log('Retrieving all projects');
+      const projects = await this.em.find(
+        Project,
+        {},
+        { populate: ['assets', 'assets.type', 'customFields'] },
+      );
+      return projects.map((p) => new ResponseProjectDto(p));
+    } catch (error) {
+      this.logger.error(error.message);
+      throw new InternalServerErrorException('Unexpected error', {
+        cause: error,
+      });
+    }
   }
 
   async findById(id: number): Promise<ResponseProjectDto> {
-    this.logger.log(`Retrieving project id=${id}`);
-    const project = await this.em.findOne(
-      Project,
-      { id },
-      { populate: ['assets', 'assets.type', 'customFields'] },
-    );
-    if (!project) {
-      this.logger.warn(`Project id=${id} not found`);
-      throw new NotFoundException(`Project #${id} not found`);
+    try {
+      this.logger.log(`Retrieving project id=${id}`);
+      const project = await this.em.findOne(
+        Project,
+        { id },
+        { populate: ['assets', 'assets.type', 'customFields'] },
+      );
+      if (!project) {
+        this.logger.warn(`Project id=${id} not found`);
+        throw new NotFoundException(`Project #${id} not found`);
+      }
+      return new ResponseProjectDto(project);
+    } catch (error) {
+      this.logger.error(error.message);
+      throw new InternalServerErrorException('Unexpected error', {
+        cause: error,
+      });
     }
-    return new ResponseProjectDto(project);
   }
 }

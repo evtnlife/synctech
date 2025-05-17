@@ -1,9 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateAssetDto {
+  @ApiPropertyOptional()
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
   id?: number;
 
   @ApiProperty({ example: 'Blueprint #1' })
@@ -16,8 +19,8 @@ export class CreateAssetDto {
   @IsNotEmpty()
   url: string;
 
-  @ApiProperty({ example: '1' })
-  @IsNotEmpty()
+  @ApiProperty({ example: 1 })
   @IsNumber()
+  @Type(() => Number)
   typeId: number;
 }

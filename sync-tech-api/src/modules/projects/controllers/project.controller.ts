@@ -15,12 +15,11 @@ import {
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateProjectDto } from 'src/common/dtos/project/create-project.dto';
 import { UpdateProjectDto } from 'src/common/dtos/project/update-project.dto';
-import { Project } from 'src/database/entities/project.entity';
 import { ProjectService } from '../services/project.service';
 import { ResponseProjectDto } from 'src/common/dtos/project/response-project.dto';
+import { ApiCommonResponses } from 'src/common/decorators/common-swagger.decorator';
 
 @ApiTags('projects')
-@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 @Controller('projects')
 export class ProjectController {
   private readonly logger = new Logger(ProjectController.name);
@@ -32,6 +31,11 @@ export class ProjectController {
     status: 201,
     description: 'Project created.',
     type: ResponseProjectDto,
+  })
+  @ApiCommonResponses()
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict. Resource already exists.',
   })
   async create(@Body() dto: CreateProjectDto): Promise<ResponseProjectDto> {
     this.logger.log('POST /projects');
@@ -46,6 +50,7 @@ export class ProjectController {
     type: ResponseProjectDto,
     isArray: true,
   })
+  @ApiCommonResponses()
   async findAll(): Promise<ResponseProjectDto[]> {
     this.logger.log('GET /projects');
     return this.projectService.findAll();
@@ -59,6 +64,7 @@ export class ProjectController {
     type: ResponseProjectDto,
   })
   @ApiResponse({ status: 404, description: 'Project not found.' })
+  @ApiCommonResponses()
   async findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ResponseProjectDto> {
@@ -73,6 +79,11 @@ export class ProjectController {
     description: 'Project updated.',
     type: ResponseProjectDto,
   })
+  @ApiCommonResponses()
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict. Resource already exists.',
+  })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProjectDto,
@@ -85,6 +96,7 @@ export class ProjectController {
   @HttpCode(204)
   @ApiOperation({ summary: 'Delete project by ID' })
   @ApiResponse({ status: 204, description: 'Project deleted.' })
+  @ApiCommonResponses()
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     this.logger.log(`DELETE /projects/${id}`);
     return this.projectService.remove(id);

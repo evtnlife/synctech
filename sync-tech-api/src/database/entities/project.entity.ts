@@ -22,9 +22,13 @@ export class Project {
   @Property({ onCreate: () => new Date() })
   createdAt!: Date;
 
-  @OneToMany(() => Asset, (a) => a.project)
+  @OneToMany(() => Asset, (a) => a.project, {
+    orphanRemoval: true,
+  })
   assets = new Collection<Asset>(this);
 
-  @OneToMany(() => CustomField, (f) => f.project)
+  @OneToMany(() => CustomField, (f) => f.project, {
+    orphanRemoval: true,
+  })
   customFields = new Collection<CustomField>(this);
 }

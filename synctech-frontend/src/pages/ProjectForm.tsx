@@ -1,3 +1,4 @@
+import {useNavigate} from "react-router-dom";
 import {useProjectForm} from "../hooks/useProjectForm";
 
 export default function ProjectForm({edit = false}: {edit?: boolean}) {
@@ -17,6 +18,8 @@ export default function ProjectForm({edit = false}: {edit?: boolean}) {
 		removeAsset,
 		setForm,
 	} = useProjectForm({edit});
+
+	let navigate = useNavigate();
 
 	return (
 		<div className="p-6 max-w-2xl mx-auto text-white">
@@ -60,12 +63,14 @@ export default function ProjectForm({edit = false}: {edit?: boolean}) {
 								placeholder="Key"
 								className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600"
 								value={field.key}
+								required={true}
 								onChange={(e) => handleFieldChange(index, "key", e.target.value)}
 							/>
 							<input
 								placeholder="Value"
 								className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600"
 								value={field.value}
+								required={true}
 								onChange={(e) => handleFieldChange(index, "value", e.target.value)}
 							/>
 							<button
@@ -95,6 +100,7 @@ export default function ProjectForm({edit = false}: {edit?: boolean}) {
 							<input
 								placeholder="Asset Name"
 								className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600"
+								required={true}
 								value={asset.name}
 								onChange={(e) => handleAssetChange(index, "name", e.target.value)}
 							/>
@@ -102,6 +108,7 @@ export default function ProjectForm({edit = false}: {edit?: boolean}) {
 							<input
 								placeholder="Asset URL"
 								className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600"
+								required={true}
 								value={asset.url}
 								onChange={(e) => handleAssetChange(index, "url", e.target.value)}
 							/>
@@ -136,12 +143,20 @@ export default function ProjectForm({edit = false}: {edit?: boolean}) {
 					))}
 				</div>
 
-				<button
-					type="submit"
-					className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-					disabled={loading}>
-					{loading ? "Saving..." : edit ? "Update Project" : "Create Project"}
-				</button>
+				<div className="flex flex-col sm:flex-row gap-4">
+					<button
+						type="submit"
+						className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+						disabled={loading}>
+						{loading ? "Saving..." : edit ? "Update Project" : "Create Project"}
+					</button>
+
+					<button
+						onClick={() => navigate("/projects")}
+						className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded disabled:opacity-50">
+						Back to List
+					</button>
+				</div>
 			</form>
 		</div>
 	);

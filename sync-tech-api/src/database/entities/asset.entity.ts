@@ -17,7 +17,7 @@ export class Asset {
   type!: AssetType;
 
   @Property({ onCreate: () => new Date() })
-  createdAt!: Date;
+  createdAt?: Date;
 
   @ManyToOne(() => Project)
   project!: Project;
