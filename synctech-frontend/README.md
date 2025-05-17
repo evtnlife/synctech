@@ -1,54 +1,81 @@
-# React + TypeScript + Vite
+# 🎨 SyncTech Frontend · React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend for the **SyncTech** technical assessment project. It's a simple but scalable **React SPA**, styled with **TailwindCSS**, and built using **Vite** for blazing-fast development.
 
-Currently, two official plugins are available:
+The application allows users to create and update construction projects, add assets (of type _link_), and manage custom metadata fields.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## ⚡ Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **React 18**
+- **Vite** (dev server & build tool)
+- **TypeScript**
+- **TailwindCSS**
+- **React Router DOM**
+- **Axios** (for API calls)
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+---
+
+## 🔧 Prerequisites
+
+- Node.js `>= 16`
+- Backend API running on `http://localhost:3000` (by default)
+
+---
+
+## 🚀 Getting Started
+
+```bash
+# Navigate into the frontend folder
+cd synctech-frontend
+
+# Install dependencies
+npm install
+
+# Start the dev server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app should now be running at [http://localhost:5173](http://localhost:5173)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+## 🗂 Project Structure
+
 ```
+synctech-frontend/
+├── src/
+│   ├── hooks/            # Custom React hooks (e.g., useProjectForm)
+│   ├── pages/            # Main page views
+│   ├── types/            # TypeScript interfaces
+│   └── main.tsx          # App entry point
+├── index.html
+├── tailwind.config.js
+├── vite.config.ts
+└── README.md
+```
+
+---
+
+## 🧠 Notes
+
+- This project uses **React Router** for routing between pages.
+- API requests are made with **Axios**, using RESTful endpoints served by the NestJS backend.
+- Basic HTML5 validation is in place; for production use, you'd typically integrate a validation library like `react-hook-form` + `zod`.
+
+---
+
+## 🔮 Next Improvements
+
+- Form validation with better UX (e.g., real-time feedback)
+- Error boundaries
+- Global toast system (e.g., for success/failure messages)
+- Dark mode toggle (because... why not?)
+
+---
+
+## 📬 Contact
+
+Made with ❤️ by **Everton**
+[github.com/evtnlife](https://github.com/evtnlife)
